@@ -94,10 +94,6 @@ def inser_data(model):
         phongNgu = st.text_input("Số phòng ngủ")
         phongTam = st.text_input("Số phòng tắm")
         tang = st.text_input("Số tầng")
-#        with st.expander("Thêm thông tin"):
-#            loaiBDS = st.text_input("Loại BDS")
-#            dienTich = st.text_input("Diện Tích")
-#            hienTrangNha = st.text_input("Hiện Trạng Nhà")
 
         submitted = st.form_submit_button("Dự Đoán")
 
@@ -251,7 +247,7 @@ if __name__ == '__main__':
     pd_df = data.toPandas()
 
     features = data.columns
-    st.write(features)
+    st.write(pd_df.info())
     # features = [ele for ele in features if ele not in ['MaTin','TongGia','Gia/m2']]
     # assembler = VectorAssembler(inputCols = features, outputCol="features")
     # standardScaler = StandardScaler(inputCol="features", outputCol="features_scaled")
