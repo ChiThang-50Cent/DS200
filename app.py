@@ -139,13 +139,13 @@ def get_data_from_URL():
                         post_JSON = json.loads(json.dumps(list(post_pandasDF.T.to_dict().values())))
                         post_pDF = spark.read.json(sc.parallelize([post_JSON]))
                         post_clean = cleanRawData(post_pDF)
-                        #st.table(post_pandasDF)
+                        st.write(post_clean)
 
                         output = st.empty()
                         with st_capture(output.code):
                             print(post_clean.show())
 
-                    st.write(post_clean)
+                    # st.write(post_clean)
                     post_clean = post_clean.drop(*['MaTin','id','NgayDangBan','NguoiDangban','DiaChi','Gia/m2'])
 
                     
@@ -247,7 +247,6 @@ if __name__ == '__main__':
     pd_df = data.toPandas()
 
     features = data.columns
-    st.write(pd_df.info())
     # features = [ele for ele in features if ele not in ['MaTin','TongGia','Gia/m2']]
     # assembler = VectorAssembler(inputCols = features, outputCol="features")
     # standardScaler = StandardScaler(inputCol="features", outputCol="features_scaled")
