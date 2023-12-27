@@ -183,15 +183,3 @@ def cleanRawData(df: DataFrame, isTrain=True) -> DataFrame:
     df4 = dropData(df3, isTrain)
     df5 = typeCasting(df4)
     return df5
-
-
-if __name__ == '__main__':
-    try:
-        df
-    except NameError:
-        df = spark.read.option("header",True)\
-            .option("multiline",True)\
-            .json("./data/raw/raw_0.json")
-    else:
-        df_clean = clean_raw_data(df)
-        df_featurize = feature_extraction(df_clean)

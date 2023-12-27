@@ -1,4 +1,4 @@
-import sys
+import re
 import pytz
 import datetime
 from datetime import datetime
@@ -22,7 +22,7 @@ def validateURL(url):
     else:
         return False
 
-def _initialize_spark() -> SparkSession:
+def initialize_spark() -> SparkSession:
     """Create a Spark Session for Streamlit app"""
     conf = SparkConf()\
         .set('spark.sql.legacy.timeParserPolicy', 'LEGACY')\

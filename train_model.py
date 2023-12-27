@@ -1,5 +1,8 @@
 import sklearn
+import pandas as pd
+
 from pyspark.sql import DataFrame
+from pyspark.ml.feature import VectorSlicer
 
 def prediction(model, data, labelCol, predictionCol='prediction') -> DataFrame:
     import math

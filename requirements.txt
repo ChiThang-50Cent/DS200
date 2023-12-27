@@ -2,7 +2,6 @@ streamlit
 numpy
 pandas
 scikit-learn
-pyspark=3.1.3
 findspark
 tqdm
 requests_html
@@ -11,3 +10,5 @@ unidecode
 pytz
 emoji
 plotly
+
+pyspark=3.1.3

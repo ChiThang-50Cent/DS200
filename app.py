@@ -7,7 +7,7 @@ from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 from time import sleep
 
-from utils import _initialize_spark
+from utils import initialize_spark
 from pyspark.sql.types import *
 from pyspark.sql import functions as f
 from pyspark.sql.functions import udf, col
@@ -36,7 +36,7 @@ def st_capture(output_func):
         stdout.write = new_write
         yield
 
-@st.cache
+@st.cache_data
 def modelLoading():
     global model_lr_rmo, model_rf_rmo, model_gbt_rmo, model_dt_rmo, model_ir_rmo
     with st.spinner('Load model set ...'):
@@ -64,7 +64,7 @@ def prediction(samples, model):
     # Predict
     return model.predict(X)
 
-def load_sample_data():
+def load_sample_data(model):
     # Chọn dữ liệu từ mẫu
     selected_indices = st.multiselect('Chọn mẫu từ bảng dữ liệu:', pd_df.index)
     selected_rows = pd_df.loc[selected_indices]
@@ -85,7 +85,7 @@ def load_sample_data():
         else:
             st.error('Hãy chọn dữ liệu trước')
 
-def inser_data():
+def inser_data(model):
     with st.form("Nhập dữ liệu"):
         loaiBDS = st.text_input("Loại BDS*")
         dienTich = st.text_input("Diện Tích*")
@@ -116,8 +116,7 @@ def inser_data():
 
             # Xuất ra màn hình
             st.write("predict", pred)
-            results = pd.DataFrame({'Giá dự đoán': pred,
-                                        'Giá thực tế': selected_rows.TongGia})
+            results = pd.DataFrame({'Giá dự đoán': pred})
             st.write(results)
 
 def get_data_from_URL():
@@ -144,7 +143,7 @@ def get_data_from_URL():
                         post_pandasDF = pd.DataFrame.from_dict([postInfo])
                         post_JSON = json.loads(json.dumps(list(post_pandasDF.T.to_dict().values())))
                         post_pDF = spark.read.json(sc.parallelize([post_JSON]))
-                        post_clean = cleanData(post_pDF)
+                        post_clean = cleanRawData(post_pDF)
                         #st.table(post_pandasDF)
 
                         output = st.empty()
@@ -164,10 +163,10 @@ def model_page(model_name, model):
     st.subheader(model_name)
     if choice_input == 'Dữ liệu mẫu':
         st.write('#### Sample dataset', pd_df)
-        load_sample_data()
+        load_sample_data(model)
 
     elif choice_input == 'Nhập dữ liệu':
-        inser_data()
+        inser_data(model)
 
     elif choice_input == 'Crawl dữ liệu từ URL':
         get_data_from_URL()
@@ -241,7 +240,7 @@ def main():
 
 
 if __name__ == '__main__':
-    spark, sc = _initialize_spark()
+    spark, sc = initialize_spark()
     st.set_page_config(layout="wide")
     ## Load dataset
     with st.spinner('Load data...'):

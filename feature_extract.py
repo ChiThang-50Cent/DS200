@@ -228,8 +228,8 @@ def getEncodedDummy(df, keepInput = False, isPredict = False, encoder_m = None):
 
 def getAdministrative(df: DataFrame, vectorize=True, keepInput=False, keepOutput=False, outputCol='features_adm') -> DataFrame:
     from pyspark.sql.functions import col, when, lower
-    from utils import _initialize_spark
-    spark, _ = _initialize_spark()
+    from utils import initialize_spark
+    spark, _ = initialize_spark()
     Idxs = []
     for feature in df.columns:
         if feature == 'Tinh':
