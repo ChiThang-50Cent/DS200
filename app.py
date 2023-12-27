@@ -50,12 +50,11 @@ def tranformFetures(X, assembler):
     # Tạo bản sao để tránh ảnh hưởng dữ liệu gốc
     X_ = X.copy()
     ###########################
-
-
-
+    X_=spark.createDataFrame(X_)
+    assembled_X = assembler.transform(X_)
+    scaled_X = standardScaler.fit(assembled_df).transform(assembled_X)
     ###########################
-    st.write("tranform")
-    return X_tranform
+    return scaled_X
 
 def prediction(samples, model):
     st.write("predict")
@@ -150,6 +149,7 @@ def get_data_from_URL():
                         with st_capture(output.code):
                             print(post_clean.show())
 
+                    st.write(post_clean)
                     post_clean = post_clean.drop(*['MaTin','id','NgayDangBan','NguoiDangban','DiaChi','Gia/m2'])
 
                     
@@ -249,6 +249,13 @@ if __name__ == '__main__':
     #st.write("data ready")
     data = data.fillna(0)
     pd_df = data.toPandas()
+
+    features = data.columns
+    features = [ele for ele in features if ele not in ['MaTin','TongGia','Gia/m2']]
+    assembler = VectorAssembler(inputCols = features, outputCol="features")
+    standardScaler = StandardScaler(inputCol="features", outputCol="features_scaled")
+    
+    assembled_df = assembler.transform(data)
 
     ## Load model
     model_lr_rmo, model_rf_rmo, model_gbt_rmo, model_dt_rmo, model_ir_rmo = \
