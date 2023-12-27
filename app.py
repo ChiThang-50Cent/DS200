@@ -251,11 +251,12 @@ if __name__ == '__main__':
     pd_df = data.toPandas()
 
     features = data.columns
-    features = [ele for ele in features if ele not in ['MaTin','TongGia','Gia/m2']]
-    assembler = VectorAssembler(inputCols = features, outputCol="features")
-    standardScaler = StandardScaler(inputCol="features", outputCol="features_scaled")
+    st.write(features)
+    # features = [ele for ele in features if ele not in ['MaTin','TongGia','Gia/m2']]
+    # assembler = VectorAssembler(inputCols = features, outputCol="features")
+    # standardScaler = StandardScaler(inputCol="features", outputCol="features_scaled")
     
-    assembled_df = assembler.transform(data)
+    # assembled_df = assembler.transform(data)
 
     ## Load model
     model_lr_rmo, model_rf_rmo, model_gbt_rmo, model_dt_rmo, model_ir_rmo = \
