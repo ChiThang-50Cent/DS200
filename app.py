@@ -136,10 +136,12 @@ def get_data_from_URL():
                 if status == 200:
                     with st.spinner('Data processing ...'):
                         post_pandasDF = pd.DataFrame.from_dict([postInfo])
+                        
+                        st.write(post_pandasDF)
+
                         post_JSON = json.loads(json.dumps(list(post_pandasDF.T.to_dict().values())))
                         post_pDF = spark.read.json(sc.parallelize([post_JSON]))
-                        post_clean = cleanRawData(post_pDF)
-                        st.write(post_clean)
+                        post_clean = cleanRawData(post_pDF, isTrain=False)
 
                         output = st.empty()
                         with st_capture(output.code):
