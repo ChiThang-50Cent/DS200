@@ -48,44 +48,32 @@ def getdata(url):
             soup = BeautifulSoup(res.text, 'html.parser')
             data['NgayDangBan'] = soup.select_one('div.text-gray.text-100').get_text().strip()
 
-            user = soup.select_one('.user-info-name')
+            user = soup.select_one('div.show-user-info > div > div')
             id_re = re.compile(r'https:\/\/nhadatvui.vn\/user\/\s*(.*)')
             data['Id_NguoiDangban'] = re.findall(id_re, user.a['href'])[0]
             data['NguoiDangban'] = user.a.string.strip()
 
-            crumb = soup.select_one('ul.crumb.text-medium.crumb-text').select('li')
+            crumb = soup.select_one('ul.crumb').select('li')
             data['LoaiBDS'] = crumb[1].span.string.strip()
             data['Tinh']    = crumb[2].span.string.strip()
             data['Huyen']   = crumb[3].span.string.strip()
             data['Xa']      = crumb[4].span.string.strip()
 
-            propertyTitlePrice = soup.select_one('.product-title-price div').findChildren('div',recursive=False)
-            data['DiaChi']  = propertyTitlePrice[0].span.string.strip()
-            data['TongGia'] = propertyTitlePrice[1].select('.price-box span')[0].string.strip()
+            propertyTitlePrice = soup.select_one('div.mt-3.product-title-price > div').select('span')
+            data['DiaChi']  = propertyTitlePrice[0].string.strip()
+            data['TongGia'] = propertyTitlePrice[1].string.strip()
+
             try:
-                data['Gia/m2'] = propertyTitlePrice[1].select('.price-box span')[1].string.strip()
+                data['Gia/m2'] = propertyTitlePrice[2].string.strip()
             except:
                 data['Gia/m2'] = '--'
-            data['MaTin'] = propertyTitlePrice[1].select('.product-status div')[0].select('span')[1].string.strip()
 
-            propertyInfo = soup.select('.product-infomation li')
-            data['DienTich']    = propertyInfo[0].span.i.next_sibling.string.strip()
-            data['ChieuDai']    = propertyInfo[1].span.i.next_sibling.string.strip()
-            data['ChieuRong']   = propertyInfo[2].span.i.next_sibling.string.strip()
-            data['Huong']       = propertyInfo[3].span.i.next_sibling.string.strip()
-            data['PhongNgu']    = propertyInfo[4].span.i.next_sibling.string.strip()
-            data['PhongTam']    = propertyInfo[5].span.i.next_sibling.string.strip()
+            data['MaTin'] = soup.select_one('div.product-show-left > div.pt-6.pb-6.border-t.border-b > div > div:nth-child(4) > span:nth-child(2)').string.strip()
 
-            propertyDesciption = soup.select_one('#content-tab-custom').select('p, ul li')
-            MoTa = []
-            for par in propertyDesciption:
-                for br in par.select('br'):
-                    br.replaceWith(' ')
-                if not par.get_text().endswith('.'):
-                    MoTa.append(par.get_text() + '.')
-                else:
-                    MoTa.append(par.get_text())
-            data['MoTa'] = preClean(' '.join(MoTa))
+            propertyInfo = soup.select_one('ul.list-full-info-product').select('li')
+            for info in propertyInfo:
+                infoName = reName(info.select('span')[1].string.strip())
+                data[infoName] = preClean(info.select('span')[2].string.strip()).replace('\n','')
             
             propertyDetail = soup.select_one('#content-tab-info div div ul').select('li')
             for info in propertyDetail:

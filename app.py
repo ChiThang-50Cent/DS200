@@ -38,35 +38,35 @@ def st_capture(output_func):
         stdout.write = new_write
         yield
 
-@st.cache_data
-def modelLoading():
-    global model_lr_rmo, model_rf_rmo, model_gbt_rmo, model_dt_rmo, model_ir_rmo
-    with st.spinner('Load model set ...'):
-        model_lr_rmo = LinearRegressionModel.load("./model/linear_regression/lr_outlierRm")
-        model_rf_rmo = RandomForestRegressionModel.load("./model/random_forest/rf_outlierRm")
-        model_gbt_rmo = GBTRegressionModel.load("./model/gradient_boosted/gbt_outlierRm")
-        model_dt_rmo = DecisionTreeRegressionModel.load("./model/decision_tree/dt_outlierRm")
-        model_ir_rmo = IsotonicRegressionModel.load("./model/isotonic_regression/ir_outlierRm")
-
-def tranformFetures(X):
+def tranformFetures(X, use_transform=True):
     string_idx = PipelineModel.load("./model/str_idx")
     enc_m = OneHotEncoderModel.load("./model/ohe_idx")
     ###########################
+
+    if use_transform:
+        X = typeCasting(X)
+        X = from_pd_to_spark(X)
+
+    st.write(X)
     scaled_X = featureExtraction(X, string_idx, enc_m)
     ###########################
+
     return scaled_X
 
-def prediction(samples, model):
-    st.write("predict")
-    # Encode dữ liệu
-    X = tranformFetures(samples)
-    # Predict
-    return model.predict(X.head().features)
+def prediction(samples, model, use_transform=True):
+    with st.spinner('Predicting...'):
+        # Encode dữ liệu
+        X = tranformFetures(samples, use_transform=use_transform)
 
+    pred = model.predict(X.head().features)
+    # Xuất ra màn hình
+    results = pd.DataFrame({'Giá dự đoán': [pred]})
+    st.write(results)
+                            
 def load_sample_data(model):
     # Chọn dữ liệu từ mẫu
     selected_indices = st.multiselect('Chọn mẫu từ bảng dữ liệu:', pd_df.index)
-    selected_rows = pd_df.loc[selected_indices]
+    selected_rows = pd_df.iloc[selected_indices]
 
     st.write('#### Kết quả')
     st.write(selected_rows)
@@ -75,30 +75,21 @@ def load_sample_data(model):
         if not selected_rows.empty:
             
             X = spark.createDataFrame(selected_rows.astype(str))
-            X = typeCasting(X)
-            X = from_pd_to_spark(X)
 
-            pred = prediction(X, model)
-
-            # Xuất ra màn hình
-            results = pd.DataFrame({
-                'Giá dự đoán': pred,
-                'Giá thực tế': selected_rows.TongGia
-                })
-            st.write(results)
+            prediction(X, model)
         else:
             st.error('Hãy chọn dữ liệu trước')
 
 def inser_data(model):
     with st.form("Nhập dữ liệu"):
-        loaiBDS = st.text_input("Loại BDS*")
-        dienTich = st.text_input("Diện Tích*")
-        tinh = st.text_input("Tỉnh\Thành phố*")
-        hienTrangNha = st.text_input("Hiện Trạng Nhà")
-        viTri = st.text_input("Vị trí")
-        phongNgu = st.text_input("Số phòng ngủ")
-        phongTam = st.text_input("Số phòng tắm")
-        tang = st.text_input("Số tầng")
+        loaiBDS = st.text_input("Loại BDS*", placeholder='Đất bán')
+        dienTich = st.text_input("Diện Tích*", placeholder='200')
+        tinh = st.text_input("Tỉnh\Thành phố*", placeholder='Bình Thuận')
+        hienTrangNha = st.text_input("Hiện Trạng Nhà", placeholder='Nhà trống')
+        viTri = st.text_input("Vị trí", placeholder='Mặt tiền')
+        phongNgu = st.text_input("Số phòng ngủ", placeholder='2')
+        phongTam = st.text_input("Số phòng tắm", placeholder='2')
+        tang = st.text_input("Số tầng", placeholder='2')
 
         submitted = st.form_submit_button("Dự Đoán")
 
@@ -106,20 +97,19 @@ def inser_data(model):
             data_submitted = {'LoaiBDS' : loaiBDS,
                                 'DienTich' : dienTich,
                                 'Tinh': tinh,
-                                'hienTrangNha': hienTrangNha,
+                                'HienTrangNha': hienTrangNha,
                                 'ViTri': viTri,
                                 'PhongNgu': phongNgu,
                                 'PhongTam': phongTam,
-                                'Tang': tang}
-            X = pd.DataFrame(data_submitted, index=[0])
-            pred = prediction(X, model)
+                                'SoTang': tang}
+            
+            X = pd.DataFrame([data_submitted])
+            X = gen_input_data(X, pd_df.iloc[[8]].reset_index(drop=True))
+            X = spark.createDataFrame(X.astype(str))
+            
+            prediction(X, model)
 
-            # Xuất ra màn hình
-            st.write("predict", pred)
-            results = pd.DataFrame({'Giá dự đoán': pred})
-            st.write(results)
-
-def get_data_from_URL():
+def get_data_from_URL(model):
     st.write('#### Crawl dữ liệu từ URL')
 
     with st.form(key='URL_form'):
@@ -140,22 +130,20 @@ def get_data_from_URL():
             else:
                 if status == 200:
                     with st.spinner('Data processing ...'):
-                        post_pandasDF = pd.DataFrame.from_dict([postInfo])
+                        post_pandasDF = pd.DataFrame([postInfo])
+                        post_pandasDF = gen_input_data(post_pandasDF, pd_df.iloc[[8]].reset_index(drop=True))
                         
                         st.write(post_pandasDF)
 
-                        post_JSON = json.loads(json.dumps(list(post_pandasDF.T.to_dict().values())))
-                        post_pDF = spark.read.json(sc.parallelize([post_JSON]))
-                        post_clean = cleanRawData(post_pDF, isTrain=False)
+                        post_pDF = spark.createDataFrame(post_pandasDF.astype(str))
+                        post_pDF = from_pd_to_spark(post_pDF)
+                        post_clean = cleanRawData(post_pDF)
 
                         output = st.empty()
                         with st_capture(output.code):
                             print(post_clean.show())
 
-                    # st.write(post_clean)
-                    post_clean = post_clean.drop(*['MaTin','id','NgayDangBan','NguoiDangban','DiaChi','Gia/m2'])
-
-                    
+                        prediction(post_clean, model, use_transform=False)
                 else:
                     print('Cant request url', status)
 
@@ -164,6 +152,7 @@ def model_page(model_name, model):
     
     choice_input = st.sidebar.selectbox('Cách nhập dữ liệu', option_list)    
     st.subheader(model_name)
+
     if choice_input == 'Dữ liệu mẫu':
         st.write('#### Sample dataset', pd_df)
         load_sample_data(model)
@@ -172,7 +161,7 @@ def model_page(model_name, model):
         inser_data(model)
 
     elif choice_input == 'Crawl dữ liệu từ URL':
-        get_data_from_URL()
+        get_data_from_URL(model)
 
 def create_dashboard(df):
     st.subheader('Dashboard')
@@ -220,6 +209,7 @@ def main():
                     'Mô hình Gradient Boosting',
                     'Mô hình Decision Tree',
                     'Mô hình Isotonic Regression']
+
     global choice_model
     choice_model = st.sidebar.selectbox('Tùy chọn:', model_list)
 
@@ -227,44 +217,37 @@ def main():
     if choice_model =='Dashboard':
         create_dashboard(pd_df)
     elif choice_model == 'Mô hình Linear Regression':
+        model_lr_rmo = LinearRegressionModel.load("./model/linear_regression/lr_outlierRm")
         model_page(choice_model, model_lr_rmo)
 
     elif choice_model == 'Mô hình Random Forest':
+        model_rf_rmo = RandomForestRegressionModel.load("./model/random_forest/rf_outlierRm")
         model_page(choice_model, model_rf_rmo)
 
     elif choice_model == 'Mô hình Gradient Boosting':
+        model_gbt_rmo = GBTRegressionModel.load("./model/gradient_boosted/gbt_outlierRm")
         model_page(choice_model, model_gbt_rmo)
 
     elif choice_model == 'Mô hình Decision Tree':
+        model_dt_rmo = DecisionTreeRegressionModel.load("./model/decision_tree/dt_outlierRm")
         model_page(choice_model, model_dt_rmo)
 
     elif choice_model == 'Mô hình Isotonic Regression':
+        model_ir_rmo = IsotonicRegressionModel.load("./model/isotonic_regression/ir_outlierRm")
         model_page(choice_model, model_ir_rmo)
 
 
 if __name__ == '__main__':
     spark, sc = initialize_spark()
     st.set_page_config(layout="wide")
+
     ## Load dataset
     with st.spinner('Load data...'):
         df = spark.read.format('org.apache.spark.sql.json').load("./data/clean/clean.json")
+    
     data = df.drop(*['id', 'MoTa'])
-
     data = data.fillna(0)
     pd_df = data.toPandas()
-
-    ## Load model
-    model_lr_rmo, model_rf_rmo, model_gbt_rmo, model_dt_rmo, model_ir_rmo = \
-    (lambda n: [None for _ in range(n)])(5)
-
-    # modelLoading()
-
-    with st.spinner('Load model set ...'):
-        model_lr_rmo = LinearRegressionModel.load("./model/linear_regression/lr_outlierRm")
-        model_rf_rmo = RandomForestRegressionModel.load("./model/random_forest/rf_outlierRm")
-        model_gbt_rmo = GBTRegressionModel.load("./model/gradient_boosted/gbt_outlierRm")
-        model_dt_rmo = DecisionTreeRegressionModel.load("./model/decision_tree/dt_outlierRm")
-        model_ir_rmo = IsotonicRegressionModel.load("./model/isotonic_regression/ir_outlierRm")
 
     output = st.empty()
         

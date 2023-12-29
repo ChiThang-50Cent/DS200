@@ -4,7 +4,10 @@ import pytz
 import datetime
 from datetime import datetime
 from pyspark import SparkConf
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, DataFrame
+
+import pandas as pd
+pd.DataFrame.iteritems = pd.DataFrame.items
 
 def currentTime(timezone = 'Asia/Ho_Chi_Minh') -> datetime:
     ''' Thời gian hiện tại với mặc định timezone Tp.HoChiMinh '''
@@ -44,7 +47,28 @@ def load_ohe_categories() -> dict:
 
     return save_ohes
 
-def convert_to_list(str_val):
+def convert_to_list(str_val: str) -> list:
     # Xử lý chuỗi để loại bỏ dấu ngoặc đơn và khoảng trắng
-    cleaned_str = str_val.strip("[]").replace("'", "").split(",")
+    cleaned_str = str_val.strip("[]").replace("'", "").replace(", ", ",").split(",")
+
+    if "" in cleaned_str:
+        return []
+        
     return cleaned_str
+
+def gen_input_data(df: pd.DataFrame, sample: pd.DataFrame) -> pd.DataFrame:
+    
+    df_ = df.copy()
+    to_drop = []
+
+    for col in df_.columns:
+        if col not in sample.columns:
+            to_drop.append(col)
+            
+    df_ = df_.drop(columns=to_drop)
+
+    for col in sample.columns:
+        if (col not in df_.columns) or (df_[col].values[0] == ''):
+            df_[col] = sample[col]
+
+    return df_

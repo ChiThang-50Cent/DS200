@@ -262,7 +262,8 @@ def getAdministrative(df: DataFrame, vectorize=True, keepInput=False, keepOutput
                 when(col('PhanLoaiTinh').contains('Đặc biệt'), 4)\
                 .when(col('PhanLoaiTinh').contains('III'), 3)\
                 .when(col('PhanLoaiTinh').contains('II'), 2)\
-                .when(col('PhanLoaiTinh').contains('I'), 1))
+                .when(col('PhanLoaiTinh').contains('I'), 1)
+                .otherwise(1))
             Idxs.append('Tinh_idx')
 
         elif feature == 'Huyen':
@@ -270,14 +271,16 @@ def getAdministrative(df: DataFrame, vectorize=True, keepInput=False, keepOutput
                 when(lower(col('Huyen')).contains('tp'),3)\
                 .when(lower(col('Huyen')).contains('quận'),3)\
                 .when(lower(col('Huyen')).contains('thị xã'),2)\
-                .when(lower(col('Huyen')).contains('huyện'),1))
+                .when(lower(col('Huyen')).contains('huyện'),1)
+                .otherwise(1))
             Idxs.append('Huyen_idx')
 
         elif feature == 'Xa':
             df = df.withColumn('Xa_idx',
                 when(lower(col('Xa')).contains('phường'), 3)\
                 .when(lower(col('Xa')).contains('thị trấn'), 2)\
-                .when(lower(col('Xa')).contains('xã'), 1))
+                .when(lower(col('Xa')).contains('xã'), 1)
+                .otherwise(1))
             Idxs.append('Xa_idx')
     
     if vectorize:

@@ -184,7 +184,8 @@ def from_pd_to_spark(df):
     convert_to_list_udf = udf(lambda x: convert_to_list(x), ArrayType(StringType()))
     
     for col in STRUCTURED_COLUMNS:
-        df = df.withColumn(col, convert_to_list_udf(df[col]))
+        if col in df.columns:
+            df = df.withColumn(col, convert_to_list_udf(df[col]))
 
     return df
 
