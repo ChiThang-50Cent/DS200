@@ -1,4 +1,5 @@
 import re
+import pickle
 import pytz
 import datetime
 from datetime import datetime
@@ -29,3 +30,21 @@ def initialize_spark() -> SparkSession:
         .setAppName("bigdata").setMaster("local")
     spark = SparkSession.builder.config(conf=conf).getOrCreate()
     return spark, spark.sparkContext
+
+def load_ohe_categories() -> dict:
+    """Load save ohe model"""
+    with open('./model/ohe_util.pkl', 'rb') as file:
+        ohes = pickle.load(file)
+    
+    save_ohes = {}
+
+    for ohe in ohes:
+        info = ohe.__dict__
+        save_ohes[info['feature']] = info['categories']
+
+    return save_ohes
+
+def convert_to_list(str_val):
+    # Xử lý chuỗi để loại bỏ dấu ngoặc đơn và khoảng trắng
+    cleaned_str = str_val.strip("[]").replace("'", "").split(",")
+    return cleaned_str

@@ -1,6 +1,8 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+pd.DataFrame.iteritems = pd.DataFrame.items
+
 import plotly.express as px
 
 from contextlib import contextmanager, redirect_stdout
@@ -12,16 +14,16 @@ from pyspark.sql.types import *
 from pyspark.sql import functions as f
 from pyspark.sql.functions import udf, col
 from pyspark.ml.regression import LinearRegressionModel, RandomForestRegressionModel, GBTRegressionModel, DecisionTreeRegressionModel, IsotonicRegressionModel, FMRegressionModel
-from pyspark.ml.feature import VectorAssembler, StandardScaler
+from pyspark.ml.feature import VectorAssembler, StandardScaler, OneHotEncoderModel
 from pyspark.ml.evaluation import RegressionEvaluator
+from pyspark.ml import PipelineModel
 
 from utils import *
 from crawl_url import *
 from crawl_data import *
 from clean_data import *
 from train_model import *
-
-
+from feature_extract import *
 
 @contextmanager
 def st_capture(output_func):
@@ -46,36 +48,39 @@ def modelLoading():
         model_dt_rmo = DecisionTreeRegressionModel.load("./model/decision_tree/dt_outlierRm")
         model_ir_rmo = IsotonicRegressionModel.load("./model/isotonic_regression/ir_outlierRm")
 
-def tranformFetures(X, assembler):
-    # Tạo bản sao để tránh ảnh hưởng dữ liệu gốc
-    X_ = X.copy()
+def tranformFetures(X):
+    string_idx = PipelineModel.load("./model/str_idx")
+    enc_m = OneHotEncoderModel.load("./model/ohe_idx")
     ###########################
-    X_=spark.createDataFrame(X_)
-    assembled_X = assembler.transform(X_)
-    scaled_X = standardScaler.fit(assembled_df).transform(assembled_X)
+    scaled_X = featureExtraction(X, string_idx, enc_m)
     ###########################
     return scaled_X
 
 def prediction(samples, model):
     st.write("predict")
     # Encode dữ liệu
-    X = tranformFetures(samples, assembler)
+    X = tranformFetures(samples)
     # Predict
-    return model.predict(X)
+    return model.predict(X.head().features)
 
 def load_sample_data(model):
     # Chọn dữ liệu từ mẫu
     selected_indices = st.multiselect('Chọn mẫu từ bảng dữ liệu:', pd_df.index)
     selected_rows = pd_df.loc[selected_indices]
+
     st.write('#### Kết quả')
+    st.write(selected_rows)
 
     if st.button('Dự đoán'):
         if not selected_rows.empty:
-            X = selected_rows.iloc[:, :-1]
+            
+            X = spark.createDataFrame(selected_rows.astype(str))
+            X = typeCasting(X)
+            X = from_pd_to_spark(X)
+
             pred = prediction(X, model)
 
             # Xuất ra màn hình
-            st.write("predict", pred)
             results = pd.DataFrame({
                 'Giá dự đoán': pred,
                 'Giá thực tế': selected_rows.TongGia
@@ -244,22 +249,23 @@ if __name__ == '__main__':
     with st.spinner('Load data...'):
         df = spark.read.format('org.apache.spark.sql.json').load("./data/clean/clean.json")
     data = df.drop(*['id', 'MoTa'])
-    #st.write("data ready")
+
     data = data.fillna(0)
     pd_df = data.toPandas()
-
-    features = data.columns
-    # features = [ele for ele in features if ele not in ['MaTin','TongGia','Gia/m2']]
-    # assembler = VectorAssembler(inputCols = features, outputCol="features")
-    # standardScaler = StandardScaler(inputCol="features", outputCol="features_scaled")
-    
-    # assembled_df = assembler.transform(data)
 
     ## Load model
     model_lr_rmo, model_rf_rmo, model_gbt_rmo, model_dt_rmo, model_ir_rmo = \
     (lambda n: [None for _ in range(n)])(5)
 
-    modelLoading()
+    # modelLoading()
+
+    with st.spinner('Load model set ...'):
+        model_lr_rmo = LinearRegressionModel.load("./model/linear_regression/lr_outlierRm")
+        model_rf_rmo = RandomForestRegressionModel.load("./model/random_forest/rf_outlierRm")
+        model_gbt_rmo = GBTRegressionModel.load("./model/gradient_boosted/gbt_outlierRm")
+        model_dt_rmo = DecisionTreeRegressionModel.load("./model/decision_tree/dt_outlierRm")
+        model_ir_rmo = IsotonicRegressionModel.load("./model/isotonic_regression/ir_outlierRm")
+
     output = st.empty()
         
     main()

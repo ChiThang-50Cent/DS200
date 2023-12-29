@@ -3,8 +3,6 @@ from pyspark.ml import Pipeline, PipelineModel
 from pyspark.ml.feature import StringIndexer, VectorAssembler, OneHotEncoderModel
 from typing import Tuple, List
 
-from utils import *
-
 STRUCTURED_COLUMNS = [
     'TienIchToaNha',
     'TienIchLanCan',
@@ -112,29 +110,19 @@ class OHE():
 
 
 def OHEtransform(
-    df: DataFrame, isPredict=False, keepInput=False, keepOutput=False,
+    df: DataFrame, keepInput=False, keepOutput=False,
     vectorizeEach=True, vectorize=True, outputCol='features_ohe'
     ) -> Tuple[DataFrame, List[PipelineModel]]:
 
     df_trans = df
-    categories = 'auto'
     ohe_models = []
     vec_names = []
-    save_cats = {}
-
     if vectorize:
         vectorizeEach=True
 
-    if isPredict:
-        save_cats = load_ohe_categories()
-
     for feature in df.columns:
         if feature in STRUCTURED_COLUMNS:
-
-            if isPredict:
-                categories = save_cats[feature]
-
-            encoder = OHE(categories=categories)
+            encoder = OHE()
             df_trans = encoder.transform(df_trans, feature)
             ohe_models.append(encoder)
 
@@ -220,20 +208,13 @@ def getDummy(
 def getEncodedDummy(df, keepInput = False, isPredict = False, encoder_m = None):
     import re
     from pyspark.ml.feature import OneHotEncoder
-    from pyspark.sql.functions import udf
-    from pyspark.sql.types import StringType
 
     pat = re.compile(r"^.*_idx.*$")
     idxList = [i for i in df.columns if pat.match(i)]
     oheList = [sub.replace('idx', 'ohe') for sub in idxList]
 
-    transform_empty = udf(lambda s: "NA" if s == "" else s, StringType())
-    for col in idxList:
-        df = df.withColumn(col, transform_empty(col))
-        df = df.withColumn(col, df[col].cast('double'))
-
     encoder = OneHotEncoder(inputCols=idxList, outputCols=oheList)
-    if isPredict and encoder_m:
+    if isPredict:
         pass
     else:
         encoder_m = encoder.fit(df)
@@ -300,26 +281,18 @@ def getAdministrative(df: DataFrame, vectorize=True, keepInput=False, keepOutput
     return df
 
 
-def featureExtraction(df: DataFrame, string_idx=None, enc_m=None) -> DataFrame:
-    
+def featureExtraction(df: DataFrame, outputCol='features', vectorize=True) -> DataFrame:
     df1 = binningDistribute(df)
-    df2 = getAdministrative(df1, vectorize=False)
-    df3, stringIndexs = getDummy(df2, isPredict=True, vectorize=False, models_stringIndex=string_idx)
-    df4, encodes = OHEtransform(df3, isPredict=True, vectorize=False)
-    df5, en_m = getEncodedDummy(df4, isPredict=True, encoder_m=enc_m)
+    df2 = getAdministrative(df1)
+    df3, stringIndexs = getDummy(df2)
+    df4, encodes = OHEtransform(df3, vectorize=vectorize)
 
-    # if vectorize:
-    #     assembler = VectorAssembler(
-    #         inputCols=['features_adm','features_idx','features_ohe'],
-    #         outputCol=outputCol)
-    #     data = assembler.transform(df4)
-    # else:
-    #     data = df4
+    if vectorize:
+        assembler = VectorAssembler(
+            inputCols=['features_adm','features_idx','features_ohe'],
+            outputCol=outputCol)
+        data = assembler.transform(df4)
+    else:
+        data = df4
 
-    features = df5.columns
-    features = [ele for ele in features if ele not in ['DiaChi','Gia/m2', 'MaTin','NgayDangBan', 'TongGia', 'NguoiDangban']]
-    assembler = VectorAssembler(inputCols = features, outputCol="features")
-
-    assembled_df = assembler.transform(df5)
-
-    return assembled_df
+    return data
