@@ -58,9 +58,10 @@ def prediction(samples, model, use_transform=True):
         # Encode dữ liệu
         X = tranformFetures(samples, use_transform=use_transform)
 
+    st.write(X)
     pred = model.predict(X.head().features)
+    results = get_result(X, pred)
     # Xuất ra màn hình
-    results = pd.DataFrame({'Giá dự đoán': [pred]})
     st.write(results)
                             
 def load_sample_data(model):
