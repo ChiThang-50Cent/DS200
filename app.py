@@ -106,7 +106,7 @@ def inser_data(model):
                                 'SoTang': tang}
             
             X = pd.DataFrame([data_submitted])
-            X = gen_input_data(X, pd_df.iloc[[8]].reset_index(drop=True))
+            X = gen_input_data(X, pd_df.iloc[[np.random.randint(700)]].reset_index(drop=True))
             X = spark.createDataFrame(X.astype(str))
             
             prediction(X, model)
@@ -133,7 +133,7 @@ def get_data_from_URL(model):
                 if status == 200:
                     with st.spinner('Data processing ...'):
                         post_pandasDF = pd.DataFrame([postInfo])
-                        post_pandasDF = gen_input_data(post_pandasDF, pd_df.iloc[[8]].reset_index(drop=True))
+                        post_pandasDF = gen_input_data(post_pandasDF, pd_df.iloc[[np.random.randint(500)]].reset_index(drop=True))
                         
                         st.write(post_pandasDF)
 

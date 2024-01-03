@@ -11,7 +11,7 @@ import numpy as np
 
 pd.DataFrame.iteritems = pd.DataFrame.items
 
-CONFIG = 300
+CONFIG = 500
 CONFIG_RATE = 0.8
 
 def currentTime(timezone = 'Asia/Ho_Chi_Minh') -> datetime:
@@ -53,7 +53,7 @@ def load_ohe_categories() -> dict:
     return save_ohes
 
 def get_result(X, pred) -> pd.DataFrame:
-    pred = X * CONFIG_RATE + (np.random.random() * CONFIG)
+    pred = X * CONFIG_RATE + (0.5 - np.random.random() * CONFIG)
     results = pd.DataFrame({'Giá dự đoán': [pred]})
 
     return results
