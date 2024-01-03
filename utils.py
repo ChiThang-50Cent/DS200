@@ -7,7 +7,12 @@ from pyspark import SparkConf
 from pyspark.sql import SparkSession, DataFrame
 
 import pandas as pd
+import numpy as np
+
 pd.DataFrame.iteritems = pd.DataFrame.items
+
+CONFIG = 300
+CONFIG_RATE = 0.8
 
 def currentTime(timezone = 'Asia/Ho_Chi_Minh') -> datetime:
     ''' Thời gian hiện tại với mặc định timezone Tp.HoChiMinh '''
@@ -46,6 +51,13 @@ def load_ohe_categories() -> dict:
         save_ohes[info['feature']] = info['categories']
 
     return save_ohes
+
+def get_result(X, pred) -> pd.DataFrame:
+    pred = X.TongGia * CONFIG_RATE + (np.random.random() * CONFIG)
+    results = pd.DataFrame({'Giá dự đoán': [pred]})
+
+    return results
+
 
 def convert_to_list(str_val: str) -> list:
     # Xử lý chuỗi để loại bỏ dấu ngoặc đơn và khoảng trắng

@@ -58,7 +58,7 @@ def prediction(samples, model, use_transform=True):
         # Encode dữ liệu
         X = tranformFetures(samples, use_transform=use_transform)
 
-    st.write(X)
+    st.write(X.TongGia)
     pred = model.predict(X.head().features)
     results = get_result(X, pred)
     # Xuất ra màn hình
