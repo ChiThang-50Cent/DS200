@@ -11,7 +11,7 @@ import numpy as np
 
 pd.DataFrame.iteritems = pd.DataFrame.items
 
-CONFIG = 500
+CONFIG = 200
 CONFIG_RATE = 0.8
 
 def currentTime(timezone = 'Asia/Ho_Chi_Minh') -> datetime:

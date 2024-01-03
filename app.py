@@ -116,7 +116,7 @@ def get_data_from_URL(model):
 
     with st.form(key='URL_form'):
         URL = st.text_input(
-            label='Điền URL đến bài đăng bán BDS lấy từ https://nhadatvui.vn/ cần dự đoán.',
+            label='Điền URL đến bài đăng bán BDS lấy từ https://nhadatvui.vn/ cần dự đoán.\nVd: https://nhadatvui.vn/ban-nha-rieng-phuong-hiep-binh-chanh-tp-thu-duc/ban-tret-lau-hem-ba-gac-duong-49-hiep-binh-chanh-thanh-pho-thu-duc1704279569',
             placeholder='https://nhadatvui.vn/bat-dong-san-ABC')
         submit_button = st.form_submit_button(label='Submit')
 
