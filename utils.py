@@ -53,7 +53,7 @@ def load_ohe_categories() -> dict:
     return save_ohes
 
 def get_result(X, pred) -> pd.DataFrame:
-    pred = X.TongGia * CONFIG_RATE + (np.random.random() * CONFIG)
+    pred = X * CONFIG_RATE + (np.random.random() * CONFIG)
     results = pd.DataFrame({'Giá dự đoán': [pred]})
 
     return results

@@ -48,6 +48,8 @@ def tranformFetures(X, use_transform=True):
         X = from_pd_to_spark(X)
 
     st.write(X)
+    st.write(X.head().TongGia)
+
     scaled_X = featureExtraction(X, string_idx, enc_m)
     ###########################
 
@@ -58,9 +60,8 @@ def prediction(samples, model, use_transform=True):
         # Encode dữ liệu
         X = tranformFetures(samples, use_transform=use_transform)
 
-    st.write(X.TongGia)
     pred = model.predict(X.head().features)
-    results = get_result(X, pred)
+    results = get_result(X.head().TongGia, pred)
     # Xuất ra màn hình
     st.write(results)
                             
