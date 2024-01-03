@@ -48,7 +48,7 @@ def tranformFetures(X, use_transform=True):
         X = from_pd_to_spark(X)
 
     st.write(X)
-    st.write(X.head().TongGia)
+    # st.write(X.head().TongGia)
 
     scaled_X = featureExtraction(X, string_idx, enc_m)
     ###########################
