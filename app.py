@@ -61,7 +61,13 @@ def prediction(samples, model, use_transform=True):
         X = tranformFetures(samples, use_transform=use_transform)
 
     pred = model.predict(X.head().features)
+
+    # Lấy kết quả dự đoán.
+    # results = pd.DataFrame({'Giá dự đoán': [pred]})
+
+    # Test 
     results = get_result(X.head().TongGia, pred)
+    
     # Xuất ra màn hình
     st.write(results)
                             
