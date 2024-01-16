@@ -1,0 +1,11 @@
+{%extends "side.html" %} 
+{%block content%} 
+  
+<h1>Welcome to Home</h1> 
+<div id="chart1"></div>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+<script type="text/javascript">
+    let graphs1 = {{ graph1JSON | safe}};
+    Plotly.newPlot("chart1", graphs1,{});
+</script>
+{% endblock %}

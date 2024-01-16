@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Example</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #sidebar {
+            height: 100vh;
+            width: 20%;
+            background-color: #333;
+            padding: 20px;
+            color: white;
+            box-sizing: border-box;
+            float: left;
+        }
+
+        #content {
+            margin-left: 20%; /* Adjusted to match the sidebar width */
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        select, button {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>Sidebar</h2>
+        <select id="selectionBox">
+            <option value="option1">Option 1</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+        </select>
+        <button onclick="showMessage()">OK</button>
+    </div>
+
+    <div id="content">
+        {% block content %}{% endblock %} 
+    </div>
+
+    <script>
+        function showMessage() {
+            var selectedOption = document.getElementById("selectionBox").value;
+            alert("Selected Option: " + selectedOption);
+        }
+    </script>
+
+</body>
+</html>
