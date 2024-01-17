@@ -115,7 +115,7 @@ def init_ml_model():
 
 def load_sample_data(spark, df, data, model):
 
-    selected_rows = df.iloc[int(data)]
+    selected_rows = df.iloc[[int(data)]]
     X = spark.createDataFrame(selected_rows.astype(str))
 
     return prediction(X, model)

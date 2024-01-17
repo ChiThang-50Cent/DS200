@@ -179,7 +179,7 @@ def typeCasting(df: DataFrame) -> DataFrame:
 def from_pd_to_spark(df):
     from pyspark.sql.functions import udf
     from pyspark.sql.types import ArrayType, StringType
-    from utils import convert_to_list
+    from main_utils.utils import convert_to_list
 
     convert_to_list_udf = udf(lambda x: convert_to_list(x), ArrayType(StringType()))
     
