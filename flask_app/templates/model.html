@@ -67,6 +67,13 @@
 
 <button onclick="predict()">Dự đoán</button>
 
+<div class="loader-container" disabled="true">
+    <div class="loader"></div>
+    <p>Predicting...</p>
+  </div>
+
+<div id="table-prediction"></div>
+
 <script>
     let get_form_value = () => {
         
@@ -104,7 +111,26 @@
         }
     }
 
+    let set_loader_disabled = (disabled) => {
+        el = document.querySelector('div.loader-container')
+        el.setAttribute('disabled', disabled)
+    }
+
+    let render_prediction = (data) => {
+        el = document.querySelector('div#table-prediction')
+
+        if (data) {
+            el.setAttribute('disabled', "false")
+            el.innerHTML = data
+        } 
+
+        else el.setAttribute('disabled', "true")
+    }
+
     let predict = async () => {
+        set_loader_disabled("true")
+        render_prediction(null)
+
         let map_selection = {
             'number-input' : get_number_input,
             'insert_form' : get_form_value,
@@ -131,7 +157,8 @@
             })
             const result = await response.json();
 
-            console.log(result)
+            set_loader_disabled("false")
+            render_prediction(result.df_html)
         } catch (err) {
             console.log(err)
         }

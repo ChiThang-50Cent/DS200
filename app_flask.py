@@ -7,7 +7,7 @@ from flask import Flask, render_template, request
 from pyngrok import ngrok
 
 from flask_app import utils_flask as f_utils
-from . import utils as u
+import utils as u
 
 
 app = Flask(__name__, template_folder='./flask_app/templates')
@@ -48,9 +48,7 @@ def get_prediction():
 
     res = f_utils.get_prediction(spark, pd_df, insert_type, list_model[model], data)
 
-    print(type(res))
-
-    return {"HI" : "HELLO"}
+    return {'df_html' : res.to_html()}
 
     
 
