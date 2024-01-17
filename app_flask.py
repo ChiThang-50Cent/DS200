@@ -13,9 +13,9 @@ from main_utils import utils as u
 app = Flask(__name__, template_folder='./flask_app/templates')
 
 # config for ngrok colab
-# public_url = ngrok.connect(5000).public_url
-# print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}/\"".format(public_url, 5000))
-# app.config["BASE_URL"] = public_url
+public_url = ngrok.connect(5000).public_url
+print(" * ngrok tunnel \"{}\" -> \"http://127.0.0.1:{}/\"".format(public_url, 5000))
+app.config["BASE_URL"] = public_url
 
 # init Spark and read data
 spark, sc = u.initialize_spark()
@@ -46,10 +46,15 @@ def get_prediction():
     model = int(req['model'])
     data = req['inserted_data']
 
+    res = f_utils.get_prediction(spark, pd_df, insert_type, list_model[model], data)
+
+    print(type(res))
+
     return {"HI" : "HELLO"}
 
     
 
 if __name__ == "__main__":
 
-    app.run(debug=True)
+    app.run(debug=False)
+    # app.run(debug=True)

@@ -11,8 +11,8 @@ import numpy as np
 
 pd.DataFrame.iteritems = pd.DataFrame.items
 
-CONFIG = 200
-CONFIG_RATE = 0.8
+CONFIG = 50
+CONFIG_RATE = 0.9
 
 def currentTime(timezone = 'Asia/Ho_Chi_Minh') -> datetime:
     ''' Thời gian hiện tại với mặc định timezone Tp.HoChiMinh '''

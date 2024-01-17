@@ -15,7 +15,7 @@ from pyspark.ml import PipelineModel
 from main_utils import utils as u
 from main_utils.crawl_url import *
 from main_utils import crawl_data as crd
-from main_utils import clean_data import *
+from main_utils import clean_data as cld
 from main_utils.train_model import *
 from main_utils import feature_extract as fe
 
@@ -112,24 +112,41 @@ def init_ml_model():
     model_ir_rmo = IsotonicRegressionModel.load("./model/isotonic_regression/ir_outlierRm")
 
     return [model_lr_rmo, model_rf_rmo, model_gbt_rmo, model_dt_rmo, model_ir_rmo]
+
 def load_sample_data(spark, df, data, model):
 
     selected_rows = df.iloc[int(data)]
     X = spark.createDataFrame(selected_rows.astype(str))
 
     return prediction(X, model)
+
 def inserted_data(spark, df, data, model):
     X = pd.DataFrame([data])
     X = u.gen_input_data(X, df.iloc[[np.random.randint(700)]].reset_index(drop=True))
     X = spark.createDataFrame(X.astype(str))
 
     return prediction(X, model)
+
 def get_data_from_URL(spark, df, data, model):
-    status, postInfo = cld.getdata(data)
+    _, postInfo = crd.getdata(data)
     post_pandasDF = pd.DataFrame([postInfo])
     post_pandasDF = u.gen_input_data(post_pandasDF, df.iloc[[np.random.randint(500)]].reset_index(drop=True))
     post_pDF = spark.createDataFrame(post_pandasDF.astype(str))
     post_pDF = cld.from_pd_to_spark(post_pDF)
-    post_clean = cleanRawData(post_pDF)
-def get_prediction(df, insert_type, model, data):
+    post_clean = cld.cleanRawData(post_pDF)
 
+    return prediction(post_clean, model, use_transform=False)
+
+def get_prediction(spark, df, insert_type, model, data):
+    
+    map_selection = {
+        'number-input' : load_sample_data,
+        'insert_form' : inserted_data,
+        'url-input' : get_data_from_URL
+    }
+
+    pred_func = map_selection[insert_type]
+
+    res = pred_func(spark, df, data, model)
+
+    return res

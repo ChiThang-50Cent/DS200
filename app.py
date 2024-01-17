@@ -19,12 +19,12 @@ from pyspark.ml.feature import VectorAssembler, StandardScaler, OneHotEncoderMod
 from pyspark.ml.evaluation import RegressionEvaluator
 from pyspark.ml import PipelineModel
 
-from utils import *
-from crawl_url import *
-from crawl_data import *
-from clean_data import *
-from train_model import *
-from feature_extract import *
+from main_utils.utils import *
+from main_utils.crawl_url import *
+from main_utils.crawl_data import *
+from main_utils.clean_data import *
+from main_utils.train_model import *
+from main_utils.feature_extract import *
 
 @contextmanager
 def st_capture(output_func):
