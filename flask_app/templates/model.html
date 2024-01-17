@@ -128,7 +128,7 @@
     }
 
     let predict = async () => {
-        set_loader_disabled("true")
+        set_loader_disabled("false")
         render_prediction(null)
 
         let map_selection = {
@@ -157,7 +157,7 @@
             })
             const result = await response.json();
 
-            set_loader_disabled("false")
+            set_loader_disabled("true")
             render_prediction(result.df_html)
         } catch (err) {
             console.log(err)
