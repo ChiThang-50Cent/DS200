@@ -3,7 +3,7 @@ from pyspark.ml import Pipeline, PipelineModel
 from pyspark.ml.feature import StringIndexer, VectorAssembler, OneHotEncoderModel
 from typing import Tuple, List
 
-from utils import *
+from main_utils.utils import *
 
 STRUCTURED_COLUMNS = [
     'TienIchToaNha',

@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sidebar Example</title>
+    <title>Dự đoán giá trị nhà đất</title>
     <style>
         body {
             margin: 0;
             font-family: Arial, sans-serif;
+            display: flex;
         }
 
         #sidebar {
+            position: fixed;
             height: 100vh;
             width: 20%;
             background-color: #333;
@@ -22,38 +25,156 @@
         }
 
         #content {
-            margin-left: 20%; /* Adjusted to match the sidebar width */
+            margin-left: 20%;
+            /* Adjusted to match the sidebar width */
             padding: 20px;
             box-sizing: border-box;
+            flex: auto;
         }
 
-        select, button {
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            height: 100px;
+            background-color: #000000;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 30px;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .describe {
+            padding: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .col {
+            width: 50%;
+        }
+
+        .number {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-rows: auto auto;
+            /* Hai hàng, hàng đầu và hàng hai */
+            grid-template-columns: 1fr 1fr;
+            /* Hai cột, mỗi cột chiếm 1 phần bằng nhau */
+            gap: 10px;
+            /* Khoảng cách giữa các ô */
+        }
+
+        /* Thiết lập kiểu của các ô */
+        .item {
+            background-color: #ddd;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Thiết lập kiểu của ô lớn (nằm ở hàng đầu) */
+        .item-big {
+            grid-row: 1;
+            /* Nằm ở hàng đầu */
+            grid-column: span 2;
+            /* Chiếm 2 cột */
+        }
+
+        #table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .form-row {
             margin-bottom: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        select, input, button {
+            padding: 8px;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        div.insert[disabled="true"] {
+            display: none;
         }
     </style>
 </head>
+
 <body>
 
     <div id="sidebar">
-        <h2>Sidebar</h2>
+        <h2>Selection</h2>
         <select id="selectionBox">
-            <option value="option1">Option 1</option>
-            <option value="option2">Option 2</option>
-            <option value="option3">Option 3</option>
+            <option value="0">Dashboard</option>
+            <option value="1">Dự đoán</option>
         </select>
-        <button onclick="showMessage()">OK</button>
+        <button onclick="go_to_url()">Go to</button>
     </div>
 
     <div id="content">
-        {% block content %}{% endblock %} 
+        {% block content %}{% endblock %}
     </div>
 
     <script>
-        function showMessage() {
-            var selectedOption = document.getElementById("selectionBox").value;
-            alert("Selected Option: " + selectedOption);
+
+        function go_to_url() {
+            let selectedOption = document.getElementById("selectionBox").value;
+            let list_url = ['/', '/test']
+
+            window.location.assign(list_url[Number(selectedOption)])
         }
+
     </script>
 
 </body>
+
 </html>

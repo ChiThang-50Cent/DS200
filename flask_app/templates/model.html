@@ -1,0 +1,121 @@
+{%extends "side.html" %}
+{%block content%}
+
+<div id="table-container"></div>
+
+<div class="form-row">
+    <label>Chọn model:</label>
+    <select id="model-select">
+        <option value="0">Mô hình Linear Regression</option>
+        <option value="1">Mô hình Random Forest</option>
+        <option value="2">Mô hình Gradient Boosting</option>
+        <option value="3">Mô hình Decision Tree</option>
+        <option value="4">Mô hình RIsotonic Regression</option>
+        <!-- Add more options as needed -->
+    </select>
+</div>
+
+<div class="form-row">
+    <label>Chọn phương thức nhập:</label>
+    <select id="method-select" onchange="change_select_insert()">
+        <option value="number-input">Dữ liệu mẫu</option>
+        <option value="insert_form">Nhập dữ liệu</option>
+        <option value="url-input">Crawl dữ liệu từ URL</option>
+        <!-- Add more options as needed -->
+    </select>
+</div>
+
+<div class="form-row insert" id="number-input">
+    <label>Nhập số:</label>
+    <input type="number" placeholder="Line number">
+</div>
+
+<div class="form-row insert" id="url-input" disabled="true">
+    <label>Nhập URL:</label>
+    <input type="text" placeholder="URL" size="80">
+</div>
+
+<div class="form-row insert" id="insert_form"  disabled="true">
+    <form>
+        <label for="loaiBDS">Loại BDS:</label>
+        <input type="text" id="LoaiBDS" placeholder="Đất bán">
+
+        <label for="dienTich">Diện Tích:</label>
+        <input type="text" id="DienTich" placeholder="200">
+
+        <label for="tinh">Tỉnh\Thành phố:</label>
+        <input type="text" id="Tinh" placeholder="Bình Thuận">
+
+        <label for="hienTrangNha">Hiện Trạng Nhà:</label>
+        <input type="text" id="HienTrangNha" placeholder="Nhà trống">
+
+        <label for="viTri">Vị trí:</label>
+        <input type="text" id="ViTri" placeholder="Mặt tiền">
+
+        <label for="phongNgu">Số phòng ngủ:</label>
+        <input type="text" id="PhongNgu" placeholder="2">
+
+        <label for="phongTam">Số phòng tắm:</label>
+        <input type="text" id="PhongTam" placeholder="2">
+
+        <label for="tang">Số tầng:</label>
+        <input type="text" id="Tang" placeholder="2">
+    </form>
+</div>
+
+<button onclick="predict()">Dự đoán</button>
+
+<script>
+    let get_form_value = () => {
+        
+        form_data = {}
+        let formEles = document.querySelector('div#insert_form > form').elements
+
+        for(let i = 0; i < formEles.length; i++){
+            if (formEles[i].type == "text"){
+                form_data[formEles[i].id] = formEles[i].value
+            }
+        }
+
+        return form_data
+    }
+
+    let get_number_input = () => {
+        data = document.querySelector('#number-input > input[type=number]').value
+
+        return data
+    }
+
+    let get_url_input = () => {
+        data = document.querySelector('#url-input > input[type=text]').value
+
+        return data
+    }
+
+    let change_select_insert = () => {
+        let inserts = document.querySelectorAll('div.insert')
+        let selection = document.querySelector('#method-select').value
+        
+        for (let i = 0; i < inserts.length; i++){
+            if(inserts[i].id != selection) inserts[i].setAttribute("disabled", "true")
+            else inserts[i].setAttribute("disabled", "false")
+        }
+    }
+
+    let predict = () => {
+        let map_selection = {
+            'number-input' : get_number_input,
+            'insert_form' : get_form_value,
+            'url-input' : get_url_input
+        }
+
+        let selection = document.querySelector('#method-select').value
+        let model = document.querySelector("#model-select").value
+
+        let get_data_function = map_selection[selection]()
+
+        console.log(get_data_function, model)
+    }
+</script>
+
+{% endblock %}

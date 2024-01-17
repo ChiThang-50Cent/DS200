@@ -1,5 +1,5 @@
 import pandas as pd
-from utils import currentTime
+from main_utils.utils import currentTime
 from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 from tqdm import tqdm

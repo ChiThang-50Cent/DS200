@@ -5,7 +5,7 @@ from unidecode import unidecode
 from requests_html import HTMLSession
 from bs4 import BeautifulSoup
 
-from utils import currentTime
+from main_utils.utils import currentTime
 
 
 numreg = re.compile(r'[0-9]+')
