@@ -1,7 +1,9 @@
 {%extends "side.html" %}
 {%block content%}
 
-<div id="table-container"></div>
+<div id="table-container">
+    {{data.df | safe}}
+</div>
 
 <div class="form-row">
     <label>Chọn model:</label>
@@ -102,7 +104,7 @@
         }
     }
 
-    let predict = () => {
+    let predict = async () => {
         let map_selection = {
             'number-input' : get_number_input,
             'insert_form' : get_form_value,
@@ -111,11 +113,28 @@
 
         let selection = document.querySelector('#method-select').value
         let model = document.querySelector("#model-select").value
+        let inserted_data = map_selection[selection]()
+        
+        let data = {
+            'insert_type' : selection,
+            'model' : model,
+            inserted_data
+        }
 
-        let get_data_function = map_selection[selection]()
+        try {
+            const response = await fetch('/get_prediction', {
+                method : 'POST',
+                headers : {
+                    "Content-Type" : "application/json",
+                },
+                body : JSON.stringify(data)
+            })
+            const result = await response.json();
 
-        console.log(get_data_function, model)
+            console.log(result)
+        } catch (err) {
+            console.log(err)
+        }
     }
 </script>
-
 {% endblock %}

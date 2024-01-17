@@ -14,22 +14,21 @@ from pyspark.ml import PipelineModel
 
 from main_utils import utils as u
 from main_utils.crawl_url import *
-from main_utils.crawl_data import *
-from main_utils.clean_data import *
+from main_utils import crawl_data as crd
+from main_utils import clean_data import *
 from main_utils.train_model import *
-from main_utils.feature_extract import *
+from main_utils import feature_extract as fe
 
-def tranformFetures(X, string_idx, enc_m, use_transform=True):
+def tranformFetures(X, use_transform=True):
     ###########################
+    string_idx, enc_m = init_pre_model()
 
     if use_transform:
-        X = typeCasting(X)
-        X = from_pd_to_spark(X)
+        X = cld.typeCasting(X)
+        X = cld.from_pd_to_spark(X)
 
-    st.write(X)
-    # st.write(X.head().TongGia)
 
-    scaled_X = featureExtraction(X, string_idx, enc_m)
+    scaled_X = fe.featureExtraction(X, string_idx, enc_m)
     ###########################
 
     return scaled_X
@@ -43,9 +42,8 @@ def prediction(samples, model, use_transform=True):
     # results = pd.DataFrame({'Giá dự đoán': [pred]})
 
     # Test 
-    results = get_result(X.head().TongGia, pred)
+    results = u.get_result(X.head().TongGia, pred)
     
-    # Xuất ra màn hình
     return results
 
 def create_dashboard(df):
@@ -114,3 +112,24 @@ def init_ml_model():
     model_ir_rmo = IsotonicRegressionModel.load("./model/isotonic_regression/ir_outlierRm")
 
     return [model_lr_rmo, model_rf_rmo, model_gbt_rmo, model_dt_rmo, model_ir_rmo]
+def load_sample_data(spark, df, data, model):
+
+    selected_rows = df.iloc[int(data)]
+    X = spark.createDataFrame(selected_rows.astype(str))
+
+    return prediction(X, model)
+def inserted_data(spark, df, data, model):
+    X = pd.DataFrame([data])
+    X = u.gen_input_data(X, df.iloc[[np.random.randint(700)]].reset_index(drop=True))
+    X = spark.createDataFrame(X.astype(str))
+
+    return prediction(X, model)
+def get_data_from_URL(spark, df, data, model):
+    status, postInfo = cld.getdata(data)
+    post_pandasDF = pd.DataFrame([postInfo])
+    post_pandasDF = u.gen_input_data(post_pandasDF, df.iloc[[np.random.randint(500)]].reset_index(drop=True))
+    post_pDF = spark.createDataFrame(post_pandasDF.astype(str))
+    post_pDF = cld.from_pd_to_spark(post_pDF)
+    post_clean = cleanRawData(post_pDF)
+def get_prediction(df, insert_type, model, data):
+

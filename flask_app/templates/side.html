@@ -97,10 +97,6 @@
             /* Chiếm 2 cột */
         }
 
-        #table-container {
-            overflow-x: auto;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -146,6 +142,13 @@
         div.insert[disabled="true"] {
             display: none;
         }
+
+        #table-container {
+            overflow: scroll;
+            width: 80vw;
+            height: 40vh;
+        }
+        
     </style>
 </head>
 
@@ -168,7 +171,7 @@
 
         function go_to_url() {
             let selectedOption = document.getElementById("selectionBox").value;
-            let list_url = ['/', '/test']
+            let list_url = ['/', '/predict']
 
             window.location.assign(list_url[Number(selectedOption)])
         }
