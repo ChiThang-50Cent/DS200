@@ -12,12 +12,10 @@ from pyspark.ml.regression import LinearRegressionModel, RandomForestRegressionM
 from pyspark.ml.feature import OneHotEncoderModel
 from pyspark.ml import PipelineModel
 
-from main_utils import utils as u
-from main_utils.crawl_url import *
-from main_utils import crawl_data as crd
-from main_utils import clean_data as cld
-from main_utils.train_model import *
-from main_utils import feature_extract as fe
+import utils as u
+import crawl_data as crd
+import clean_data as cld
+import feature_extract as fe
 
 def tranformFetures(X, use_transform=True):
     ###########################

@@ -7,7 +7,7 @@ from flask import Flask, render_template, request
 from pyngrok import ngrok
 
 from flask_app import utils_flask as f_utils
-from main_utils import utils as u
+from . import utils as u
 
 
 app = Flask(__name__, template_folder='./flask_app/templates')
