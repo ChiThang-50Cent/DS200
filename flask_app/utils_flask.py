@@ -6,6 +6,8 @@ pd.DataFrame.iteritems = pd.DataFrame.items
 
 import plotly
 import plotly.express as px
+import plotly.graph_objects as go
+
 
 from pyspark.sql.types import *
 from pyspark.ml.regression import LinearRegressionModel, RandomForestRegressionModel, GBTRegressionModel, DecisionTreeRegressionModel, IsotonicRegressionModel, FMRegressionModel
@@ -86,6 +88,17 @@ def create_dashboard(df):
         "fig3JSON" : fig3JSON,
         "fig_dateJSON" : fig_dateJSON,
     }
+
+def create_table(df):
+
+    table = go.Figure(data=[go.Table(
+        header=dict(values=list(df.columns)),
+        cells=dict(values=df.transpose().values.tolist()))
+    ])
+
+    tableJSON = json.dumps(table, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return tableJSON
 
 def read_data(spark):
     df = spark.read.format('org.apache.spark.sql.json').load("./data/clean/clean.json")

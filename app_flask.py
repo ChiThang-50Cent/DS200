@@ -1,8 +1,3 @@
-import pandas as pd
-import json
-import plotly
-import plotly.express as px
-
 from flask import Flask, render_template, request
 from pyngrok import ngrok
 
@@ -34,9 +29,10 @@ def index():
 
 @app.get('/predict')
 def predict_site():
-    df_html = pd_df.head(50).to_html()
+    df = pd_df.head(50)
+    tableJSON = f_utils.create_table(df)
 
-    return render_template('model.html', data = {'df' : df_html})
+    return render_template('model.html', data = {'df' : tableJSON})
 
 @app.post('/get_prediction')
 def get_prediction():
