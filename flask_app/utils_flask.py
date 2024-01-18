@@ -19,20 +19,22 @@ import crawl_data as crd
 import clean_data as cld
 import feature_extract as fe
 
-print(10)
+def init_pre_model():
+    string_idx = PipelineModel.load("./model/str_idx")
+    enc_m = OneHotEncoderModel.load("./model/ohe_idx")
+
+    return string_idx, enc_m
+
+string_idx, enc_m = init_pre_model()
 
 def tranformFetures(X, use_transform=True):
-    ###########################
-    string_idx, enc_m = init_pre_model()
-
     if use_transform:
         X = cld.typeCasting(X)
         X = cld.from_pd_to_spark(X)
 
 
     scaled_X = fe.featureExtraction(X, string_idx, enc_m)
-    ###########################
-
+    
     return scaled_X
 
 def prediction(samples, model, use_transform=True):
@@ -99,12 +101,6 @@ def read_data(spark):
     pd_df = data.toPandas()
 
     return pd_df
-
-def init_pre_model():
-    string_idx = PipelineModel.load("./model/str_idx")
-    enc_m = OneHotEncoderModel.load("./model/ohe_idx")
-
-    return string_idx, enc_m
 
 def init_ml_model():
     model_lr_rmo = LinearRegressionModel.load("./model/linear_regression/lr_outlierRm")
