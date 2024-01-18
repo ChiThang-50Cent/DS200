@@ -1,7 +1,9 @@
 {%extends "side.html" %}
 {%block content%}
 
-<div id="table-container"></div>
+<div id="table-container">
+    {{data.df | safe}}
+</div>
 
 <div class="form-row">
     <label>Chọn model:</label>
@@ -162,8 +164,5 @@
             console.log(err)
         }
     }
-
-    let df_table = {{data.df | safe}}
-    Plotly.newPlot("table-container", df_table,{});
 </script>
 {% endblock %}

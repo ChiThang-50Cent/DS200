@@ -29,10 +29,9 @@ def index():
 
 @app.get('/predict')
 def predict_site():
-    df = pd_df.head(50)
-    tableJSON = f_utils.create_table(df)
-
-    return render_template('model.html', data = {'df' : tableJSON})
+    df_html = pd_df.head(50).to_html()
+    
+    return render_template('model.html', data = {'df' : df_html})
 
 @app.post('/get_prediction')
 def get_prediction():
