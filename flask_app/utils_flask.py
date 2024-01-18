@@ -19,6 +19,8 @@ import crawl_data as crd
 import clean_data as cld
 import feature_extract as fe
 
+print(10)
+
 def tranformFetures(X, use_transform=True):
     ###########################
     string_idx, enc_m = init_pre_model()
