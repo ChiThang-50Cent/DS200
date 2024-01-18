@@ -15,7 +15,6 @@
         <option value="1">Mô hình Random Forest</option>
         <option value="2">Mô hình Gradient Boosting</option>
         <option value="3">Mô hình Decision Tree</option>
-        <option value="4">Mô hình RIsotonic Regression</option>
         <!-- Add more options as needed -->
     </select>
 </div>
@@ -132,6 +131,8 @@
     }
 
     let predict = async () => {
+        console.log('start', Date.now().toLocaleString())
+
         set_loader_disabled("false")
         render_prediction(null)
 
@@ -160,7 +161,7 @@
                 body : JSON.stringify(data)
             })
             const result = await response.json();
-
+            console.log('end', Date.now().toLocaleString())
             set_loader_disabled("true")
             render_prediction(result.df_html)
         } catch (err) {
