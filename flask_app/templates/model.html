@@ -1,10 +1,13 @@
 {%extends "side.html" %}
 {%block content%}
-
-<div id="table-container">
-    {{data.df | safe}}
+<div>
+    <h3>Bảng dữ liệu mẫu</h3>
+    <div id="table-container">
+        {{data.df | safe}}
+    </div>
 </div>
 
+<h3>Nhập liệu dự đoán</h3>
 <div class="form-row">
     <label>Chọn model:</label>
     <select id="model-select">

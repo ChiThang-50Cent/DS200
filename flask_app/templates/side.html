@@ -80,19 +80,15 @@
         /* Khoảng cách giữa các ô */
       }
 
-      /* Thiết lập kiểu của các ô */
       .item {
         background-color: #ddd;
         padding: 20px;
         text-align: center;
       }
 
-      /* Thiết lập kiểu của ô lớn (nằm ở hàng đầu) */
       .item-big {
         grid-row: 1;
-        /* Nằm ở hàng đầu */
         grid-column: span 2;
-        /* Chiếm 2 cột */
       }
 
       table {
@@ -101,8 +97,7 @@
         margin-bottom: 20px;
       }
 
-      th,
-      td {
+      th, td {
         border: 1px solid #ddd;
         padding: 8px;
         text-align: left;
@@ -113,7 +108,7 @@
       }
 
       .form-row {
-        margin-bottom: 10px;
+        margin: 10px 0 10px 0;
       }
 
       label {
@@ -121,22 +116,22 @@
         margin-bottom: 5px;
       }
 
-      select,
-      input,
-      button {
+      select, input {
         padding: 8px;
+        margin: 10px 0 10px 0;
         font-size: 16px;
       }
 
       button {
-        background-color: #4caf50;
+        margin: 10px 0 10px 0;
+        background-color: #4dd852;
         color: white;
         border: none;
         cursor: pointer;
       }
 
       button:hover {
-        background-color: #45a049;
+        background-color: #367939;
       }
 
       div[disabled="true"] {
@@ -159,8 +154,8 @@
 
       .loader {
         margin-top: 10px;
-        border: 8px solid #f3f3f3; /* Light grey */
-        border-top: 8px solid #3498db; /* Blue */
+        border: 6px solid #f3f3f3; /* Light grey */
+        border-top: 6px solid #3498db; /* Blue */
         border-radius: 50%;
         width: 20px;
         height: 20px;
